@@ -364,8 +364,8 @@ contract CCNCrowdsale is Ownable, Crowdsale, MintableToken {
     Crowdsale(_owner)
     {
         require(_owner != address(0));
-        //owner = _owner;
-        owner = msg.sender; //for test's
+        owner = _owner;
+        //owner = msg.sender; //for test's
         transfersEnabled = true;
         mintingFinished = false;
         totalSupply = INITIAL_SUPPLY;
@@ -400,80 +400,80 @@ contract CCNCrowdsale is Ownable, Crowdsale, MintableToken {
          return tokens;
     }
 
-        function getTotalAmountOfTokens(uint256 _weiAmount) internal view returns (uint256) {
-            uint256 currentDate = now;
-            currentDate = 1527379200; //for test's
-            uint256 currentPeriod = getPeriod(currentDate);
-            uint256 amountOfTokens = 0;
-            uint256 checkAmount = 0;
-            if(currentPeriod < 3){
-                if(whitelist[msg.sender]){
-                    amountOfTokens = _weiAmount.mul(rate);
-                    return amountOfTokens;
-                }
-                amountOfTokens = _weiAmount.mul(rate);
-                checkAmount = tokenAllocated.add(amountOfTokens);
-                if (currentPeriod == 0) {
-                    if (checkAmount > fundPreIco){
-                        amountOfTokens = 0;
-                    }
-                }
-                if (currentPeriod == 1) {
-                    if (checkAmount > fundIco){
-                        amountOfTokens = 0;
-                    }
-                }
-            }
-            return amountOfTokens;
-        }
+    function getTotalAmountOfTokens(uint256 _weiAmount) internal view returns (uint256) {
+         uint256 currentDate = now;
+         //currentDate = 1527379200; //for test's
+         uint256 currentPeriod = getPeriod(currentDate);
+         uint256 amountOfTokens = 0;
+         uint256 checkAmount = 0;
+         if(currentPeriod < 3){
+             if(whitelist[msg.sender]){
+                 amountOfTokens = _weiAmount.mul(rate);
+                 return amountOfTokens;
+             }
+             amountOfTokens = _weiAmount.mul(rate);
+             checkAmount = tokenAllocated.add(amountOfTokens);
+             if (currentPeriod == 0) {
+                 if (checkAmount > fundPreIco){
+                     amountOfTokens = 0;
+                 }
+             }
+             if (currentPeriod == 1) {
+                 if (checkAmount > fundIco){
+                    amountOfTokens = 0;
+                 }
+             }
+         }
+         return amountOfTokens;
+    }
 
-        function getPeriod(uint256 _currentDate) public pure returns (uint) {
-            //1525737600 - May, 08, 2018 00:00:00 && 1527379199 - May, 26, 2018 23:59:59
-            //1527379200 - May, 27, 2018 00:00:00 && 1530143999 - Jun, 27, 2018 23:59:59
-            //1530489600 - Jul, 02, 2018 00:00:00
+    function getPeriod(uint256 _currentDate) public pure returns (uint) {
+        //1525737600 - May, 08, 2018 00:00:00 && 1527379199 - May, 26, 2018 23:59:59
+        //1527379200 - May, 27, 2018 00:00:00 && 1530143999 - Jun, 27, 2018 23:59:59
+        //1530489600 - Jul, 02, 2018 00:00:00
 
-            if( 1525737600 <= _currentDate && _currentDate <= 1527379199){
-                return 0;
-            }
-            if( 1527379200 <= _currentDate && _currentDate <= 1530143999){
-                return 1;
-            }
-            if( 1530489600 <= _currentDate){
-                return 2;
-            }
-            return 10;
+        if( 1525737600 <= _currentDate && _currentDate <= 1527379199){
+            return 0;
         }
+        if( 1527379200 <= _currentDate && _currentDate <= 1530143999){
+            return 1;
+        }
+        if( 1530489600 <= _currentDate){
+           return 2;
+        }
+        return 10;
+    }
 
-        function deposit(address investor) internal {
-            deposited[investor] = deposited[investor].add(msg.value);
-        }
+    function deposit(address investor) internal {
+        deposited[investor] = deposited[investor].add(msg.value);
+    }
 
-        function mintForOwner(address _wallet) internal returns (bool result) {
-            result = false;
-            require(_wallet != address(0));
-            balances[_wallet] = balances[_wallet].add(INITIAL_SUPPLY);
-            result = true;
-        }
+    function mintForOwner(address _wallet) internal returns (bool result) {
+        result = false;
+        require(_wallet != address(0));
+        balances[_wallet] = balances[_wallet].add(INITIAL_SUPPLY);
+        result = true;
+    }
 
-        function getDeposited(address _investor) external view returns (uint256){
-            return deposited[_investor];
-        }
+    function getDeposited(address _investor) external view returns (uint256){
+        return deposited[_investor];
+    }
 
-        function validPurchaseTokens(uint256 _weiAmount) public returns (uint256) {
-            uint256 addTokens = getTotalAmountOfTokens(_weiAmount);
-            if (tokenAllocated.add(addTokens) > fundForSale) {
-                TokenLimitReached(tokenAllocated, addTokens);
-                return 0;
-            }
-            return addTokens;
+    function validPurchaseTokens(uint256 _weiAmount) public returns (uint256) {
+        uint256 addTokens = getTotalAmountOfTokens(_weiAmount);
+        if (tokenAllocated.add(addTokens) > fundForSale) {
+            TokenLimitReached(tokenAllocated, addTokens);
+            return 0;
         }
+        return addTokens;
+    }
 
-        function setRate(uint256 _newRate) public approveAllAdmin returns (bool){
-            require(_newRate > 0);
-            rate = _newRate;
-            removeAllApprove();
-            return true;
-        }
+    function setRate(uint256 _newRate) public approveAllAdmin returns (bool){
+        require(_newRate > 0);
+        rate = _newRate;
+        removeAllApprove();
+        return true;
+    }
 
     /**
     * @dev Add an contract admin

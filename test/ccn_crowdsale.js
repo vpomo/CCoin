@@ -109,6 +109,11 @@ contract('CCNCrowdsale', (accounts) => {
         await contract.addToWhitelist(accounts[8]);
         var isWhitelist = await contract.whitelist.call(accounts[8]);
         assert.equal(true, isWhitelist);
+
+        await contract.removeFromWhitelist(accounts[8]);
+        var isWhitelist = await contract.whitelist.call(accounts[8]);
+        assert.equal(false, isWhitelist);
+
     });
 
 });
