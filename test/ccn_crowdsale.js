@@ -101,23 +101,14 @@ contract('CCNCrowdsale', (accounts) => {
         assert.equal(2, period);
     });
 
-    it('verification claim tokens', async ()  => {
-        var balanceAccountOneBefore = await contract.balanceOf(accounts[0]);
-        assert.equal(0, balanceAccountOneBefore);
-        await contract.buyTokens(accounts[0],{from:accounts[0], value:buyWei});
-        var balanceAccountOneAfter = await contract.balanceOf(accounts[0]);
-        await contract.transfer(contract.address,balanceAccountOneAfter,{from:accounts[0]});
-        var balanceContractBefore = await contract.balanceOf(contract.address);
-        assert.equal(buyWei*rate, balanceContractBefore);
-        //console.log("balanceContractBefore = " + balanceContractBefore);
-        var balanceAccountAfter = await contract.balanceOf(accounts[0]);
-        assert.equal(0, balanceAccountAfter);
-        var balanceOwnerBefore = await contract.balanceOf(owner);
-        await contract.claimTokens(contract.address,{from:accounts[0]});
-        var balanceContractAfter = await contract.balanceOf(contract.address);
-        assert.equal(0, balanceContractAfter);
-        var balanceOwnerAfter = await contract.balanceOf(owner);
-        assert.equal(true, balanceOwnerBefore<balanceOwnerAfter);
+    it('verification of contract administrators', async ()  => {
+        await contract.setContractAdmin(accounts[3], true, 0);
+        var isAdminOne = await contract.contractAdmins.call(accounts[3]);
+        assert.equal(true, isAdminOne);
+
+        await contract.addToWhitelist(accounts[8]);
+        var isWhitelist = await contract.whitelist.call(accounts[8]);
+        assert.equal(true, isWhitelist);
     });
 
 });
